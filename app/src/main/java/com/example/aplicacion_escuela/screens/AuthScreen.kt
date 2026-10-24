@@ -52,7 +52,7 @@ fun AuthScreen() {
         if (selectedTab == 0) {
             RegisterForm(onRegistered = { selectedTab = 1 })
         } else {
-            Text("Aquí irá el formulario de inicio de sesión")
+            LoginForm(onLoggedIn = { /* después: ir a la vista de bienvenida */ })
         }
     }
 }
