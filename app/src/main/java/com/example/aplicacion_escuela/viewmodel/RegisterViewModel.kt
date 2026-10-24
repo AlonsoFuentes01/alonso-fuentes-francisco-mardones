@@ -14,15 +14,13 @@ import java.io.File
 class RegisterViewModel(app: Application) : AndroidViewModel(app) {
     private val repo = UserRepository(app)
 
-    // Lo que el usuario escribe
-    var name by mutableStateOf("")
+
     var email by mutableStateOf("")
     var password by mutableStateOf("")
     var fileUri by mutableStateOf<Uri?>(null)
     var fileName by mutableStateOf("")
 
     // Mensajes de error (null = sin error)
-    var nameError by mutableStateOf<String?>(null)
     var emailError by mutableStateOf<String?>(null)
     var passwordError by mutableStateOf<String?>(null)
     var fileError by mutableStateOf<String?>(null)
@@ -39,11 +37,10 @@ class RegisterViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun validate(): Boolean {
-        nameError = if (name.isBlank()) "El nombre es obligatorio" else null
         emailError = if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) "Correo no válido" else null
         passwordError = if (password.length < 6) "Mínimo 6 caracteres" else null
         fileError = if (fileUri == null) "Debes subir el archivo que valida que eres docente" else null
-        return listOf(nameError, emailError, passwordError, fileError).all { it == null }
+        return listOf(emailError, passwordError, fileError).all { it == null }
     }
 
     fun register(): Boolean {
@@ -57,7 +54,7 @@ class RegisterViewModel(app: Application) : AndroidViewModel(app) {
             dest.outputStream().use { input.copyTo(it) }
         }
 
-        val ok = repo.register(User(name.trim(), email.trim(), password, dest.absolutePath))
+        val ok = repo.register(User(email.trim(), email.trim(), password, dest.absolutePath))
         if (!ok) {
             dest.delete()
             emailError = "Este correo ya está registrado"
