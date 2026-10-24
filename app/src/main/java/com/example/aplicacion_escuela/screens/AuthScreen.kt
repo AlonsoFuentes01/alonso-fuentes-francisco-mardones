@@ -50,7 +50,7 @@ fun AuthScreen() {
         Spacer(Modifier.height(16.dp))
 
         if (selectedTab == 0) {
-            Text("Aquí irá el formulario de registro")
+            RegisterForm(onRegistered = { selectedTab = 1 })
         } else {
             Text("Aquí irá el formulario de inicio de sesión")
         }

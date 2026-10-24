@@ -1,0 +1,115 @@
+package com.example.aplicacion_escuela.screens
+
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.aplicacion_escuela.viewmodel.RegisterViewModel
+
+@Composable
+fun RegisterForm(
+    onRegistered: () -> Unit,
+    vm: RegisterViewModel = viewModel()
+) {
+    val context = LocalContext.current
+
+    // Selector de archivos del sistema
+    val picker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { vm.onFileSelected(it) }
+    }
+
+    // Solo PDF y Word
+    val mimeTypes = arrayOf(
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword"
+    )
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+        OutlinedTextField(
+            value = vm.email,
+            onValueChange = { vm.email = it },
+            label = { Text("Correo institucional") },
+            isError = vm.emailError != null,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        ErrorText(vm.emailError)
+
+        OutlinedTextField(
+            value = vm.password,
+            onValueChange = { vm.password = it },
+            label = { Text("Contraseña") },
+            visualTransformation = PasswordVisualTransformation(),
+            isError = vm.passwordError != null,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        ErrorText(vm.passwordError)
+
+        // Recuadro para subir el archivo
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+                .clickable { picker.launch(mimeTypes) },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = if (vm.fileName.isEmpty()) "Toca aquí para subir el archivo que valida que eres docente (PDF o Word)"
+                else vm.fileName,
+                textAlign = TextAlign.Center
+            )
+        }
+        ErrorText(vm.fileError)
+
+        Button(
+            onClick = {
+                if (vm.register()) {
+                    Toast.makeText(context, "Cuenta creada", Toast.LENGTH_SHORT).show()
+                    onRegistered()
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Registrarme")
+        }
+    }
+}
+
+@Composable
+private fun ErrorText(error: String?) {
+    AnimatedVisibility(visible = error != null) {
+        Text(
+            text = error ?: "",
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
