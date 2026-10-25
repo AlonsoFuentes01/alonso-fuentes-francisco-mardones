@@ -53,7 +53,7 @@ fun RegisterForm(
         OutlinedTextField(
             value = vm.email,
             onValueChange = { vm.email = it },
-            label = { Text("Correo institucional") },
+            label = { Text("Correo institucional (@escuela.cl)") },
             isError = vm.emailError != null,
             singleLine = true,
             modifier = Modifier.fillMaxWidth()

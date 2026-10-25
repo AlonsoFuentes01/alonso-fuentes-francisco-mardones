@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AuthScreen() {
+fun AuthScreen(onLoggedIn: () -> Unit) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Registrarse", "Iniciar sesión")
 
@@ -52,7 +52,7 @@ fun AuthScreen() {
         if (selectedTab == 0) {
             RegisterForm(onRegistered = { selectedTab = 1 })
         } else {
-            LoginForm(onLoggedIn = { /* después: ir a la vista de bienvenida */ })
+            LoginForm(onLoggedIn = onLoggedIn)
         }
     }
 }

@@ -37,10 +37,19 @@ class RegisterViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun validate(): Boolean {
-        emailError = if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) "Correo no válido" else null
-        passwordError = if (password.length < 6) "Mínimo 6 caracteres" else null
+        emailError = when {
+            email.isBlank() -> "El correo es obligatorio"
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() -> "Correo no válido"
+            else -> null
+        }
+        emailError = when {
+            email.isBlank() -> "El correo es obligatorio"
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() -> "Correo no válido"
+            !email.trim().endsWith("@escuela.cl", ignoreCase = true) -> "Usa tu correo institucional (@escuela.cl)"
+            else -> null
+        }
         fileError = if (fileUri == null) "Debes subir el archivo que valida que eres docente" else null
-        return listOf(emailError, passwordError, fileError).all { it == null }
+        return emailError == null && passwordError == null && fileError == null
     }
 
     fun register(): Boolean {

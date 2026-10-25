@@ -19,7 +19,7 @@ class UserRepository(context: Context) {
         register(
             User(
                 name = "Inspectoría",
-                email = "admin@escuela.cl",
+                email = "admin@admin.escuela.cl",
                 password = "admin123",
                 docPath = "",
                 role = "ADMIN"

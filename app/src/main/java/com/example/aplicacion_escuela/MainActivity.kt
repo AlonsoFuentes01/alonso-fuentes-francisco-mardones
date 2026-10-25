@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.aplicacion_escuela.navigation.AppNavigation
 import com.example.aplicacion_escuela.screens.AuthScreen
 import com.example.aplicacion_escuela.ui.theme.AplicacionEscuelaTheme
 
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
             AplicacionEscuelaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        AuthScreen()
+                        AppNavigation()
                     }
                 }
             }
