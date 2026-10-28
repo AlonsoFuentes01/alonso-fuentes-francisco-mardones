@@ -15,10 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/** Pantalla de bienvenida: se muestra tras iniciar sesión, antes de la pantalla principal */
 @Composable
 fun HomeScreen(
     email: String,
-    onLogout: () -> Unit
+    onContinue: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -33,10 +34,10 @@ fun HomeScreen(
         Spacer(Modifier.height(32.dp))
 
         Button(
-            onClick = onLogout,
+            onClick = onContinue,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Cerrar sesión")
+            Text("Continuar")
         }
     }
 }
