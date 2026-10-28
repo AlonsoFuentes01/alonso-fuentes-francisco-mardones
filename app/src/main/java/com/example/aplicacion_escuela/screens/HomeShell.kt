@@ -51,11 +51,7 @@ private val MenuBlue = Color(0xFF4A5FBF)
 
 private const val DURACION_MENU = 600
 
-/**
- * Estructura común de las pantallas principales (admin y docente):
- * header con hamburguesa + saludo, cuerpo con botones, barra inferior
- * y menú lateral animado.
- */
+
 @Composable
 fun HomeShell(
     name: String,
@@ -69,10 +65,8 @@ fun HomeShell(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // ── Pantalla principal ──
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // Header: menú + saludo
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,7 +92,6 @@ fun HomeShell(
                 )
             }
 
-            // Cuerpo: botones centrados
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -110,7 +103,6 @@ fun HomeShell(
                 content = content
             )
 
-            // Barra inferior
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -119,7 +111,6 @@ fun HomeShell(
             )
         }
 
-        // ── Fondo oscuro: aparece con fade y cierra el menú al tocarlo ──
         AnimatedVisibility(
             visible = menuOpen,
             enter = fadeIn(tween(DURACION_MENU)),
@@ -136,7 +127,6 @@ fun HomeShell(
             )
         }
 
-        // ── Menú: se expande desde arriba ──
         AnimatedVisibility(
             visible = menuOpen,
             modifier = Modifier.align(Alignment.TopStart),
@@ -164,7 +154,6 @@ fun HomeShell(
     }
 }
 
-/** Botón rectangular de las pantallas principales */
 @Composable
 fun HomeButton(text: String, onClick: () -> Unit) {
     OutlinedButton(
@@ -208,7 +197,6 @@ private fun SideMenu(
             ) {}
             .padding(horizontal = 20.dp, vertical = 20.dp)
     ) {
-        // Avatar + nombre + botón cerrar (X)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -240,7 +228,6 @@ private fun SideMenu(
         Spacer(Modifier.height(16.dp))
         MenuItem("Gestionar Perfil", onGestionarPerfil)
 
-        // Empuja "Cerrar sesión" al fondo
         Spacer(Modifier.weight(1f))
 
         Text(
@@ -271,7 +258,6 @@ private fun MenuItem(text: String, onClick: () -> Unit) {
     }
 }
 
-/** Avatar de usuario dibujado a mano (cabeza + hombros) */
 @Composable
 private fun Avatar() {
     Box(
@@ -299,7 +285,6 @@ private fun Avatar() {
     }
 }
 
-/** Ícono de menú dibujado a mano (3 barras) para no depender de material-icons */
 @Composable
 private fun HamburgerIcon() {
     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {

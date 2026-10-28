@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/** Pantalla de bienvenida: se muestra tras iniciar sesión, antes de la pantalla principal */
 @Composable
 fun HomeScreen(
     email: String,

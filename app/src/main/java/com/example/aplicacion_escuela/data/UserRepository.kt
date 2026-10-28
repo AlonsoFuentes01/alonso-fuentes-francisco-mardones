@@ -15,7 +15,6 @@ data class User(
 class UserRepository(context: Context) {
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     init {
-        // Crea la cuenta de administrador ficticia si todavía no existe
         register(
             User(
                 name = "Inspectoría",
@@ -66,7 +65,6 @@ class UserRepository(context: Context) {
             it.email.equals(email, ignoreCase = true) && it.password == password
         }
 
-    /** Cambia la contraseña. Retorna false si la contraseña actual no coincide. */
     fun changePassword(email: String, currentPassword: String, newPassword: String): Boolean {
         val users = getUsers()
         val user = users.find { it.email.equals(email, ignoreCase = true) } ?: return false
@@ -81,7 +79,6 @@ class UserRepository(context: Context) {
 
     fun getSession(): String? = prefs.getString("session", null)
 
-    /** Usuario completo de la sesión activa (para saber su rol y nombre) */
     fun getSessionUser(): User? {
         val email = getSession() ?: return null
         return getUsers().find { it.email.equals(email, ignoreCase = true) }

@@ -36,7 +36,6 @@ private const val MIN_LARGO = 6
 
 @Composable
 fun GestionarPerfilScreen(
-    // Retorna true si se cambió; false si la contraseña actual es incorrecta
     onChangePassword: (actual: String, nueva: String) -> Boolean,
     onBack: () -> Unit
 ) {
@@ -71,7 +70,6 @@ fun GestionarPerfilScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // Header con título
         Box(
             modifier = Modifier
                 .fillMaxWidth()

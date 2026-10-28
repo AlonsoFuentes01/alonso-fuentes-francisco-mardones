@@ -30,7 +30,6 @@ fun AuthScreen(onLoggedIn: () -> Unit) {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Aquí irá el logo del colegio
         Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
             Text("LOGO")
         }

@@ -19,12 +19,10 @@ fun AppNavigation() {
     val repo = remember { UserRepository(context) }
     val nav = rememberNavController()
 
-    // Si ya hay una sesión guardada, parte en la bienvenida
     val start = if (repo.getSession() != null) "welcome" else "auth"
 
     NavHost(navController = nav, startDestination = start) {
 
-        // Inicio de sesión / registro
         composable("auth") {
             AuthScreen(
                 onLoggedIn = {
@@ -33,7 +31,6 @@ fun AppNavigation() {
             )
         }
 
-        // Bienvenida (igual para admin y docente)
         composable("welcome") {
             HomeScreen(
                 email = repo.getSession() ?: "",
@@ -43,7 +40,6 @@ fun AppNavigation() {
             )
         }
 
-        // Pantalla principal según el rol
         composable("home") {
             val user = repo.getSessionUser()
             val logout = {
@@ -59,7 +55,6 @@ fun AppNavigation() {
                     onGestionarPerfil = irAPerfil
                 )
             } else {
-                // El nombre del docente es su correo: mostramos solo lo anterior al @
                 DocenteHomeScreen(
                     name = (user?.name ?: "").substringBefore("@"),
                     onLogout = logout,
@@ -68,7 +63,6 @@ fun AppNavigation() {
             }
         }
 
-        // Gestionar perfil (cambiar contraseña)
         composable("perfil") {
             GestionarPerfilScreen(
                 onChangePassword = { actual, nueva ->
