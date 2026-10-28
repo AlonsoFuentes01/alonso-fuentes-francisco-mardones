@@ -68,5 +68,9 @@ class UserRepository(context: Context) {
 
     fun getSession(): String? = prefs.getString("session", null)
 
-
+    /** Usuario completo de la sesión activa (para saber su rol y nombre) */
+    fun getSessionUser(): User? {
+        val email = getSession() ?: return null
+        return getUsers().find { it.email.equals(email, ignoreCase = true) }
+    }
 }

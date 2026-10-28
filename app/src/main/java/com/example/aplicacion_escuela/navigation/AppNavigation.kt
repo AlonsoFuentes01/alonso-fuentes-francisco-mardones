@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.aplicacion_escuela.data.UserRepository
+import com.example.aplicacion_escuela.screens.AdminHomeScreen
 import com.example.aplicacion_escuela.screens.AuthScreen
 import com.example.aplicacion_escuela.screens.HomeScreen
 
@@ -28,13 +29,24 @@ fun AppNavigation() {
             )
         }
         composable("home") {
-            HomeScreen(
-                email = repo.getSession() ?: "",
-                onLogout = {
-                    repo.setSession(null)
-                    nav.navigate("auth") { popUpTo("home") { inclusive = true } }
-                }
-            )
+            val user = repo.getSessionUser()
+            val logout = {
+                repo.setSession(null)
+                nav.navigate("auth") { popUpTo("home") { inclusive = true } }
+            }
+
+            if (user?.role == "ADMIN") {
+                AdminHomeScreen(
+                    name = user.name,
+                    onLogout = logout
+                    // Los 4 botones quedan en {} por defecto; se conectan después
+                )
+            } else {
+                HomeScreen(
+                    email = user?.email ?: "",
+                    onLogout = logout
+                )
+            }
         }
     }
 }
