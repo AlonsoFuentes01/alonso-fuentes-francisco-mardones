@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.aplicacion_escuela.data.UserRepository
 import com.example.aplicacion_escuela.screens.AdminHomeScreen
 import com.example.aplicacion_escuela.screens.AuthScreen
+import com.example.aplicacion_escuela.screens.GestionarPerfilScreen
 import com.example.aplicacion_escuela.screens.HomeScreen
 
 @Composable
@@ -38,8 +39,9 @@ fun AppNavigation() {
             if (user?.role == "ADMIN") {
                 AdminHomeScreen(
                     name = user.name,
-                    onLogout = logout
-                    // Los 4 botones quedan en {} por defecto; se conectan después
+                    onLogout = logout,
+                    onGestionarPerfil = { nav.navigate("perfil") }
+                    // Los demás botones quedan en {} por defecto; se conectan después
                 )
             } else {
                 HomeScreen(
@@ -47,6 +49,15 @@ fun AppNavigation() {
                     onLogout = logout
                 )
             }
+        }
+        composable("perfil") {
+            GestionarPerfilScreen(
+                onChangePassword = { actual, nueva ->
+                    val email = repo.getSession() ?: ""
+                    repo.changePassword(email, actual, nueva)
+                },
+                onBack = { nav.popBackStack() }
+            )
         }
     }
 }

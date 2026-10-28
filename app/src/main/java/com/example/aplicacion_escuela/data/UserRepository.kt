@@ -40,11 +40,9 @@ class UserRepository(context: Context) {
         }
     }
 
-    fun register(user: User): Boolean {
-        val users = getUsers()
-        if (users.any { it.email.equals(user.email, ignoreCase = true) }) return false
+    private fun saveUsers(users: List<User>) {
         val json = JSONArray()
-        (users + user).forEach {
+        users.forEach {
             json.put(
                 JSONObject()
                     .put("name", it.name)
@@ -55,12 +53,27 @@ class UserRepository(context: Context) {
             )
         }
         prefs.edit().putString("users", json.toString()).apply()
+    }
+
+    fun register(user: User): Boolean {
+        val users = getUsers()
+        if (users.any { it.email.equals(user.email, ignoreCase = true) }) return false
+        saveUsers(users + user)
         return true
     }
     fun login(email: String, password: String): User? =
         getUsers().find {
             it.email.equals(email, ignoreCase = true) && it.password == password
         }
+
+    /** Cambia la contraseña. Retorna false si la contraseña actual no coincide. */
+    fun changePassword(email: String, currentPassword: String, newPassword: String): Boolean {
+        val users = getUsers()
+        val user = users.find { it.email.equals(email, ignoreCase = true) } ?: return false
+        if (user.password != currentPassword) return false
+        saveUsers(users.map { if (it === user) it.copy(password = newPassword) else it })
+        return true
+    }
 
     fun setSession(email: String?) {
         prefs.edit().putString("session", email).apply()
