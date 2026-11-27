@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeScreen(
     email: String,
+    onNuevoTicket: () -> Unit,
     onLogout: () -> Unit
 ) {
     Column(
@@ -31,6 +32,10 @@ fun HomeScreen(
         Text(email, style = MaterialTheme.typography.bodyLarge)
 
         Spacer(Modifier.height(32.dp))
+        Button(onClick = onNuevoTicket, modifier = Modifier.fillMaxWidth()) {
+            Text("Nuevo ticket")
+        }
+        Spacer(Modifier.height(12.dp))
 
         Button(
             onClick = onLogout,

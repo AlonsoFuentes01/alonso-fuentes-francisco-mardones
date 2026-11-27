@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.aplicacion_escuela.data.UserRepository
 import com.example.aplicacion_escuela.screens.AuthScreen
 import com.example.aplicacion_escuela.screens.HomeScreen
+import com.example.aplicacion_escuela.screens.NuevoTicketScreen
 
 @Composable
 fun AppNavigation() {
@@ -27,9 +28,13 @@ fun AppNavigation() {
                 }
             )
         }
+        composable("nuevo_ticket") {
+            NuevoTicketScreen(onVolver = { nav.popBackStack() })
+        }
         composable("home") {
             HomeScreen(
                 email = repo.getSession() ?: "",
+                onNuevoTicket = { nav.navigate("nuevo_ticket") },
                 onLogout = {
                     repo.setSession(null)
                     nav.navigate("auth") { popUpTo("home") { inclusive = true } }
