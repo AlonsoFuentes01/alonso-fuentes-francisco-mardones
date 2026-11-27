@@ -9,12 +9,14 @@ import retrofit2.http.POST
 data class CrearTicketRequest(
     @SerializedName("categoria") val categoria: String,
     @SerializedName("ubicacion") val ubicacion: String,
-    @SerializedName("descripcion") val descripcion: String
+    @SerializedName("descripcion") val descripcion: String,
+    @SerializedName("fotoBase64") val fotoBase64: String? = null
 )
 
 data class TicketCreado(
     @SerializedName("numero") val numero: Long,
-    @SerializedName("estado") val estado: String
+    @SerializedName("estado") val estado: String,
+    @SerializedName("fotoAdjunta") val fotoAdjunta: Boolean = false
 )
 
 interface TicketApi {

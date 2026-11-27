@@ -2,6 +2,7 @@ package com.example.aplicacion_escuela.viewmodel
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,11 +12,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.aplicacion_escuela.data.ClimaActual
 import com.example.aplicacion_escuela.data.ClimaApiClient
 import com.example.aplicacion_escuela.data.CrearTicketRequest
+import com.example.aplicacion_escuela.data.FotoAdjunta
 import com.example.aplicacion_escuela.data.TicketApiClient
 import com.example.aplicacion_escuela.data.TicketCreado
 import com.example.aplicacion_escuela.data.UserRepository
+import java.io.ByteArrayOutputStream
 import java.io.IOException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
 class NuevoTicketViewModel(app: Application) : AndroidViewModel(app) {
@@ -45,6 +50,49 @@ class NuevoTicketViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var errorClima by mutableStateOf<String?>(null)
         private set
+
+    var foto by mutableStateOf<FotoAdjunta?>(null)
+        private set
+    var cargandoFoto by mutableStateOf(false)
+        private set
+    var errorFoto by mutableStateOf<String?>(null)
+        private set
+
+    fun adjuntarFoto(uri: Uri? = null, captura: Bitmap? = null) {
+        if (cargandoFoto || enviando || (uri == null && captura == null)) return
+        cargandoFoto = true
+        errorFoto = null
+        viewModelScope.launch {
+            try {
+                foto = withContext(Dispatchers.IO) {
+                    if (captura != null) {
+                        val salida = ByteArrayOutputStream()
+                        if (!captura.compress(Bitmap.CompressFormat.JPEG, 85, salida)) {
+                            throw IOException("No se pudo preparar la foto.")
+                        }
+                        salida.toByteArray().inputStream().use(FotoAdjunta::leer)
+                    } else {
+                        val resolver = getApplication<Application>().contentResolver
+                        resolver.openInputStream(requireNotNull(uri))?.use(FotoAdjunta::leer)
+                            ?: throw IOException("No se pudo abrir la foto.")
+                    }
+                }
+            } catch (error: IllegalArgumentException) {
+                errorFoto = error.message ?: "La foto no es válida."
+            } catch (_: IOException) {
+                errorFoto = "No se pudo abrir la foto."
+            } catch (_: SecurityException) {
+                errorFoto = "No se pudo acceder a la foto."
+            } finally {
+                cargandoFoto = false
+            }
+        }
+    }
+
+    fun quitarFoto() {
+        foto = null
+        errorFoto = null
+    }
 
     fun consultarClima() {
         if (consultandoClima) return
@@ -86,7 +134,7 @@ class NuevoTicketViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun enviar() {
-        if (enviando) return
+        if (enviando || cargandoFoto) return
 
         intentoEnvio = true
         error = null
@@ -95,7 +143,9 @@ class NuevoTicketViewModel(app: Application) : AndroidViewModel(app) {
         if (campos.any { it.isBlank() || it.length > 255 }) return
 
         enviando = true
-        val solicitud = CrearTicketRequest(categoria.trim(), ubicacion.trim(), descripcion.trim())
+        val solicitud = CrearTicketRequest(
+            categoria.trim(), ubicacion.trim(), descripcion.trim(), foto?.base64
+        )
         viewModelScope.launch {
             try {
                 ticket = TicketApiClient.api.crearTicket(solicitud)
@@ -104,6 +154,7 @@ class NuevoTicketViewModel(app: Application) : AndroidViewModel(app) {
                 ubicacion = ""
                 descripcion = ""
                 borrador?.edit()?.clear()?.apply()
+                quitarFoto()
             } catch (_: IOException) {
                 error = "No se pudo confirmar el envío. Revisa la conexión."
             } catch (_: HttpException) {
