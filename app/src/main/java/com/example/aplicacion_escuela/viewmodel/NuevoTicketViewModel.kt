@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aplicacion_escuela.data.ClimaActual
+import com.example.aplicacion_escuela.data.ClimaApiClient
 import com.example.aplicacion_escuela.data.CrearTicketRequest
 import com.example.aplicacion_escuela.data.TicketApiClient
 import com.example.aplicacion_escuela.data.TicketCreado
@@ -36,6 +38,37 @@ class NuevoTicketViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var ticket by mutableStateOf<TicketCreado?>(null)
         private set
+
+    var consultandoClima by mutableStateOf(false)
+        private set
+    var clima by mutableStateOf<ClimaActual?>(null)
+        private set
+    var errorClima by mutableStateOf<String?>(null)
+        private set
+
+    fun consultarClima() {
+        if (consultandoClima) return
+
+        consultandoClima = true
+        clima = null
+        errorClima = null
+        viewModelScope.launch {
+            try {
+                val actual = ClimaApiClient.api.consultarSantiago().actual
+                if (actual?.temperatura != null && actual.velocidadViento != null) {
+                    clima = actual
+                } else {
+                    errorClima = "El clima no está disponible."
+                }
+            } catch (_: IOException) {
+                errorClima = "No se pudo consultar el clima."
+            } catch (_: HttpException) {
+                errorClima = "El clima no está disponible."
+            } finally {
+                consultandoClima = false
+            }
+        }
+    }
 
     fun actualizarBorrador(
         categoria: String = this.categoria,

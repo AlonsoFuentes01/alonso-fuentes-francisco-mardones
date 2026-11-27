@@ -51,6 +51,20 @@ fun NuevoTicketScreen(
         modelo.error?.let { error ->
             Text(error, color = MaterialTheme.colorScheme.error)
         }
+
+        TextButton(onClick = modelo::consultarClima, enabled = !modelo.consultandoClima) {
+            Text(if (modelo.consultandoClima) "Consultando clima…" else "Ver clima en Santiago")
+        }
+        modelo.clima?.let { clima ->
+            Text(
+                "Santiago · ${clima.temperatura} °C · Viento ${clima.velocidadViento} km/h",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text("Datos de Open-Meteo", style = MaterialTheme.typography.bodySmall)
+        }
+        modelo.errorClima?.let { error ->
+            Text(error, color = MaterialTheme.colorScheme.error)
+        }
     }
 }
 
