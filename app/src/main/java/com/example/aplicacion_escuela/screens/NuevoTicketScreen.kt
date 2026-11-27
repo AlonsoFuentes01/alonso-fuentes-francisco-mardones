@@ -31,10 +31,11 @@ fun NuevoTicketScreen(
     ) {
         TextButton(onClick = onVolver, enabled = !modelo.enviando) { Text("Volver") }
         Text("Nuevo ticket", style = MaterialTheme.typography.headlineMedium)
+        Text("El borrador se guarda en este dispositivo.", style = MaterialTheme.typography.bodySmall)
 
-        CampoTicket("Categoría", modelo.categoria, { modelo.categoria = it }, modelo)
-        CampoTicket("Ubicación", modelo.ubicacion, { modelo.ubicacion = it }, modelo)
-        CampoTicket("Descripción", modelo.descripcion, { modelo.descripcion = it }, modelo, false)
+        CampoTicket("Categoría", modelo.categoria, { modelo.actualizarBorrador(categoria = it) }, modelo)
+        CampoTicket("Ubicación", modelo.ubicacion, { modelo.actualizarBorrador(ubicacion = it) }, modelo)
+        CampoTicket("Descripción", modelo.descripcion, { modelo.actualizarBorrador(descripcion = it) }, modelo, false)
 
         Button(
             onClick = modelo::enviar,

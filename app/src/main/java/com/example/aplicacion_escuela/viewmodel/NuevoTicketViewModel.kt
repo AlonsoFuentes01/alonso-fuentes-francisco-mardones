@@ -1,21 +1,33 @@
 package com.example.aplicacion_escuela.viewmodel
 
+import android.app.Application
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aplicacion_escuela.data.CrearTicketRequest
 import com.example.aplicacion_escuela.data.TicketApiClient
 import com.example.aplicacion_escuela.data.TicketCreado
+import com.example.aplicacion_escuela.data.UserRepository
 import java.io.IOException
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class NuevoTicketViewModel : ViewModel() {
-    var categoria by mutableStateOf("")
-    var ubicacion by mutableStateOf("")
-    var descripcion by mutableStateOf("")
+class NuevoTicketViewModel(app: Application) : AndroidViewModel(app) {
+    private val cuenta = UserRepository(app).getSession()
+    private val borrador = cuenta?.let {
+        app.getSharedPreferences("borrador_ticket_${Uri.encode(it)}", Context.MODE_PRIVATE)
+    }
+
+    var categoria by mutableStateOf(borrador?.getString("categoria", "").orEmpty())
+        private set
+    var ubicacion by mutableStateOf(borrador?.getString("ubicacion", "").orEmpty())
+        private set
+    var descripcion by mutableStateOf(borrador?.getString("descripcion", "").orEmpty())
+        private set
     var enviando by mutableStateOf(false)
         private set
     var intentoEnvio by mutableStateOf(false)
@@ -24,6 +36,21 @@ class NuevoTicketViewModel : ViewModel() {
         private set
     var ticket by mutableStateOf<TicketCreado?>(null)
         private set
+
+    fun actualizarBorrador(
+        categoria: String = this.categoria,
+        ubicacion: String = this.ubicacion,
+        descripcion: String = this.descripcion
+    ) {
+        this.categoria = categoria
+        this.ubicacion = ubicacion
+        this.descripcion = descripcion
+        borrador?.edit()
+            ?.putString("categoria", categoria)
+            ?.putString("ubicacion", ubicacion)
+            ?.putString("descripcion", descripcion)
+            ?.apply()
+    }
 
     fun enviar() {
         if (enviando) return
@@ -43,6 +70,7 @@ class NuevoTicketViewModel : ViewModel() {
                 categoria = ""
                 ubicacion = ""
                 descripcion = ""
+                borrador?.edit()?.clear()?.apply()
             } catch (_: IOException) {
                 error = "No se pudo confirmar el envío. Revisa la conexión."
             } catch (_: HttpException) {
