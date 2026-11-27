@@ -20,7 +20,6 @@ class RegisterViewModel(app: Application) : AndroidViewModel(app) {
     var fileUri by mutableStateOf<Uri?>(null)
     var fileName by mutableStateOf("")
 
-    // Mensajes de error (null = sin error)
     var emailError by mutableStateOf<String?>(null)
     var passwordError by mutableStateOf<String?>(null)
     var fileError by mutableStateOf<String?>(null)
@@ -34,6 +33,11 @@ class RegisterViewModel(app: Application) : AndroidViewModel(app) {
                     fileName = c.getString(c.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
                 }
             }
+    }
+
+    fun clearFile() {
+        fileUri = null
+        fileName = ""
     }
 
     private fun validate(): Boolean {
@@ -56,7 +60,6 @@ class RegisterViewModel(app: Application) : AndroidViewModel(app) {
         if (!validate()) return false
         val ctx = getApplication<Application>()
 
-        // Copiamos el archivo a la carpeta privada de la app
         val dir = File(ctx.filesDir, "validacion").apply { mkdirs() }
         val dest = File(dir, "${System.currentTimeMillis()}_$fileName")
         ctx.contentResolver.openInputStream(fileUri!!)?.use { input ->

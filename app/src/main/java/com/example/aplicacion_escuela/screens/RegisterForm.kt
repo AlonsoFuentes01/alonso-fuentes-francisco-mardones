@@ -11,19 +11,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aplicacion_escuela.viewmodel.RegisterViewModel
 
@@ -33,15 +42,14 @@ fun RegisterForm(
     vm: RegisterViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    // Selector de archivos del sistema
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let { vm.onFileSelected(it) }
     }
 
-    // Solo PDF y Word
     val mimeTypes = arrayOf(
         "application/pdf",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -64,14 +72,21 @@ fun RegisterForm(
             value = vm.password,
             onValueChange = { vm.password = it },
             label = { Text("Contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None
+            else PasswordVisualTransformation(),
+            trailingIcon = {
+                TextButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Text(if (passwordVisible) "Ocultar" else "Mostrar", fontSize = 13.sp)
+                }
+            },
             isError = vm.passwordError != null,
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         ErrorText(vm.passwordError)
 
-        // Recuadro para subir el archivo
+        val hayArchivo = vm.fileName.isNotEmpty()
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -82,10 +97,26 @@ fun RegisterForm(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (vm.fileName.isEmpty()) "Toca aquí para subir el archivo que valida que eres docente (PDF o Word)"
-                else vm.fileName,
-                textAlign = TextAlign.Center
+                text = if (hayArchivo) vm.fileName
+                else "Toca aquí para subir el archivo que valida que eres docente (PDF o Word)",
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                // Deja espacio a ambos lados para que no choque con la X
+                modifier = Modifier.padding(horizontal = if (hayArchivo) 44.dp else 8.dp)
             )
+
+            if (hayArchivo) {
+                Text(
+                    text = "✕",
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .clickable { vm.clearFile() }
+                        .padding(16.dp)
+                )
+            }
         }
         ErrorText(vm.fileError)
 

@@ -43,7 +43,6 @@ fun LoginForm(
         )
         LoginErrorText(vm.passwordError)
 
-        // Error general: datos con buen formato pero que no coinciden
         LoginErrorText(vm.loginError)
 
         Button(

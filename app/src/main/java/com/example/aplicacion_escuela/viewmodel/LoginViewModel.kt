@@ -10,11 +10,9 @@ import com.example.aplicacion_escuela.data.UserRepository
 class LoginViewModel(app: Application) : AndroidViewModel(app) {
     private val repo = UserRepository(app)
 
-    // Lo que el usuario escribe
     var email by mutableStateOf("")
     var password by mutableStateOf("")
 
-    // Mensajes de error (null = sin error)
     var emailError by mutableStateOf<String?>(null)
     var passwordError by mutableStateOf<String?>(null)
     var loginError by mutableStateOf<String?>(null)
@@ -25,7 +23,6 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
         return emailError == null && passwordError == null
     }
 
-    /** Retorna true si el inicio de sesión fue correcto */
     fun login(): Boolean {
         loginError = null
         if (!validate()) return false

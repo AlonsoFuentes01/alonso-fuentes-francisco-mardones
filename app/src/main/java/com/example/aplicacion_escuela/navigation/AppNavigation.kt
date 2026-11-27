@@ -7,7 +7,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.aplicacion_escuela.data.UserRepository
+import com.example.aplicacion_escuela.screens.AdminHomeScreen
 import com.example.aplicacion_escuela.screens.AuthScreen
+import com.example.aplicacion_escuela.screens.DocenteHomeScreen
+import com.example.aplicacion_escuela.screens.GestionarPerfilScreen
 import com.example.aplicacion_escuela.screens.HomeScreen
 import com.example.aplicacion_escuela.screens.NuevoTicketScreen
 
@@ -17,28 +20,63 @@ fun AppNavigation() {
     val repo = remember { UserRepository(context) }
     val nav = rememberNavController()
 
-    // Si ya hay una sesión guardada, parte directo en la bienvenida
-    val start = if (repo.getSession() != null) "home" else "auth"
+    val start = if (repo.getSession() != null) "welcome" else "auth"
 
     NavHost(navController = nav, startDestination = start) {
+
         composable("auth") {
             AuthScreen(
                 onLoggedIn = {
-                    nav.navigate("home") { popUpTo("auth") { inclusive = true } }
+                    nav.navigate("welcome") { popUpTo("auth") { inclusive = true } }
                 }
             )
         }
+
+        composable("welcome") {
+            HomeScreen(
+                email = repo.getSession() ?: "",
+                onContinue = {
+                    nav.navigate("home") { popUpTo("welcome") { inclusive = true } }
+                }
+            )
+        }
+
+        composable("home") {
+            val user = repo.getSessionUser()
+            val logout = {
+                repo.setSession(null)
+                nav.navigate("auth") { popUpTo("home") { inclusive = true } }
+            }
+            val irAPerfil = { nav.navigate("perfil") }
+
+            if (user?.role == "ADMIN") {
+                AdminHomeScreen(
+                    name = user.name,
+                    onNuevoTicket = { nav.navigate("nuevo_ticket") },
+                    onLogout = logout,
+                    onGestionarPerfil = irAPerfil
+                )
+            } else {
+                DocenteHomeScreen(
+                    name = (user?.name ?: "").substringBefore("@"),
+                    onNuevoTicket = { nav.navigate("nuevo_ticket") },
+                    onLogout = logout,
+                    onGestionarPerfil = irAPerfil
+                )
+            }
+        }
+
         composable("nuevo_ticket") {
             NuevoTicketScreen(onVolver = { nav.popBackStack() })
         }
-        composable("home") {
-            HomeScreen(
-                email = repo.getSession() ?: "",
-                onNuevoTicket = { nav.navigate("nuevo_ticket") },
-                onLogout = {
-                    repo.setSession(null)
-                    nav.navigate("auth") { popUpTo("home") { inclusive = true } }
-                }
+
+        composable("perfil") {
+            GestionarPerfilScreen(
+                onChangePassword = { actual, nueva ->
+                    val email = repo.getSession() ?: ""
+                    repo.changePassword(email, actual, nueva)
+                },
+                onBack = { nav.popBackStack() }
             )
         }
     }
