@@ -11,7 +11,8 @@ fun DocenteHomeScreen(
     onEspaciosReservados: () -> Unit = {},
     onCuentaDocente: () -> Unit = {},
     onGestionarPerfil: () -> Unit = {},
-    onNuevoTicket: () -> Unit = {}
+    onNuevoTicket: () -> Unit = {},
+    onConsultarTicket: () -> Unit = {}
 ) {
     HomeShell(
         name = name,
@@ -21,6 +22,7 @@ fun DocenteHomeScreen(
         onLogout = onLogout
     ) {
         HomeButton("Nuevo ticket", onNuevoTicket)
+        HomeButton("Consultar ticket", onConsultarTicket)
         HomeButton("Buscar Espacio", onBuscarEspacio)
         HomeButton("Mis Solicitudes", onMisSolicitudes)
         HomeButton("Espacios Reservados", onEspaciosReservados)

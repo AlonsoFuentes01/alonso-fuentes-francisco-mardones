@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 data class CrearTicketRequest(
     @SerializedName("categoria") val categoria: String,
@@ -20,14 +22,18 @@ data class TicketCreado(
 )
 
 interface TicketApi {
+    @GET("api/tickets/{numero}")
+    suspend fun buscarTicket(@Path("numero") numero: Long): TicketCreado
+
     @POST("api/tickets")
     suspend fun crearTicket(@Body solicitud: CrearTicketRequest): TicketCreado
 }
 
 object TicketApiClient {
-    val api: TicketApi = Retrofit.Builder()
+    private val retrofit = Retrofit.Builder()
         .baseUrl("https://mpaz-ticket-service.onrender.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        .create(TicketApi::class.java)
+    val api: TicketApi = retrofit.create(TicketApi::class.java)
+    val inspector: InspectorApi = retrofit.create(InspectorApi::class.java)
 }

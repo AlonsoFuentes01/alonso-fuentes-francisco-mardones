@@ -1,18 +1,23 @@
 package com.example.aplicacion_escuela.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.aplicacion_escuela.data.UserRepository
+import com.example.aplicacion_escuela.data.VistaInspector
 import com.example.aplicacion_escuela.screens.AdminHomeScreen
 import com.example.aplicacion_escuela.screens.AuthScreen
+import com.example.aplicacion_escuela.screens.BandejaInspectorScreen
+import com.example.aplicacion_escuela.screens.ConsultarTicketScreen
 import com.example.aplicacion_escuela.screens.DocenteHomeScreen
 import com.example.aplicacion_escuela.screens.GestionarPerfilScreen
 import com.example.aplicacion_escuela.screens.HomeScreen
 import com.example.aplicacion_escuela.screens.NuevoTicketScreen
+import okhttp3.Credentials
 
 @Composable
 fun AppNavigation() {
@@ -52,7 +57,7 @@ fun AppNavigation() {
             if (user?.role == "ADMIN") {
                 AdminHomeScreen(
                     name = user.name,
-                    onNuevoTicket = { nav.navigate("nuevo_ticket") },
+                    onAbrirVista = { vista -> nav.navigate("bandeja_inspector/${vista.ruta}") },
                     onLogout = logout,
                     onGestionarPerfil = irAPerfil
                 )
@@ -60,6 +65,7 @@ fun AppNavigation() {
                 DocenteHomeScreen(
                     name = (user?.name ?: "").substringBefore("@"),
                     onNuevoTicket = { nav.navigate("nuevo_ticket") },
+                    onConsultarTicket = { nav.navigate("consultar_ticket") },
                     onLogout = logout,
                     onGestionarPerfil = irAPerfil
                 )
@@ -67,7 +73,31 @@ fun AppNavigation() {
         }
 
         composable("nuevo_ticket") {
-            NuevoTicketScreen(onVolver = { nav.popBackStack() })
+            val user = repo.getSessionUser()
+            if (user == null || user.role == "ADMIN") {
+                LaunchedEffect(Unit) { nav.popBackStack() }
+            } else {
+                NuevoTicketScreen(onVolver = { nav.popBackStack() })
+            }
+        }
+
+        composable("bandeja_inspector/{vista}") { entrada ->
+            val ruta = entrada.arguments?.getString("vista")
+            val vista = VistaInspector.entries.firstOrNull { it.ruta == ruta }
+            val inspector = repo.getSessionUser()
+            if (inspector?.role == "ADMIN" && vista != null) {
+                BandejaInspectorScreen(
+                    vista = vista,
+                    autorizacion = Credentials.basic("inspector", inspector.password),
+                    onVolver = { nav.popBackStack() }
+                )
+            } else {
+                LaunchedEffect(Unit) { nav.popBackStack() }
+            }
+        }
+
+        composable("consultar_ticket") {
+            ConsultarTicketScreen(onVolver = { nav.popBackStack() })
         }
 
         composable("perfil") {

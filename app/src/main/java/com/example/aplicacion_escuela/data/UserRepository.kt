@@ -15,15 +15,27 @@ data class User(
 class UserRepository(context: Context) {
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     init {
-        register(
-            User(
-                name = "Inspectoría",
-                email = "admin@admin.escuela.cl",
-                password = "admin123",
-                docPath = "",
-                role = "ADMIN"
-            )
+        val inspector = User(
+            name = "Inspectoría",
+            email = "admin@admin.escuela.cl",
+            password = "admin123",
+            docPath = "",
+            role = "ADMIN"
         )
+        if (!register(inspector)) {
+            val usuarios = getUsers()
+            val sinClave = usuarios.any {
+                it.role == inspector.role && it.email.equals(inspector.email, ignoreCase = true) &&
+                    it.password.isEmpty()
+            }
+            if (sinClave) {
+                saveUsers(usuarios.map {
+                    if (it.role == inspector.role && it.email.equals(inspector.email, ignoreCase = true) &&
+                        it.password.isEmpty()
+                    ) it.copy(password = inspector.password) else it
+                })
+            }
+        }
     }
     fun getUsers(): List<User> {
         val json = JSONArray(prefs.getString("users", "[]"))
